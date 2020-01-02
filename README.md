@@ -32,6 +32,12 @@ ESC to escape
 Use voice command to start kiosk for a given year
 It will end any existing show, by killilng irfanview process
 
+### steps
+on the NUC
+- `uvicorn server:app --reload`
+- `Downloads\ngrok.exe http 8000`
+
+
 ### notes
 Use https endpoint as webhook URL
-`https://e4852af1.ngrok.io/start_show`
+`https://xxxx.ngrok.io/start_show`
