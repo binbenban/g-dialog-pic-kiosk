@@ -1,5 +1,6 @@
 import os
 import subprocess
+import typing
 
 import psutil
 from fastapi import FastAPI, HTTPException
@@ -15,11 +16,19 @@ def read_root():
     return {"Hello": "World"}
 
 
-@app.post("/start_show")
-async def start_show(request: Request):
+@app.post("/")
+async def handle_slideshow(request: Request):
+    request_body = await request.json()
+    print(request_body)
+    intent_name = request_body['queryResult']['intent']['displayName']
+    if intent_name == "RunSlideshow":
+        return start_show(request_body)
+    elif intent_name == "StopSlideshow":
+        return stop_show()
+
+    
+def start_show(request_body: typing.Any):
     try:
-        request_body = await request.json()
-        print(request_body)
         year = request_body['queryResult']['parameters']['year']
         print(f"parameter year from request: {year}")
         validate_param(year)
@@ -34,6 +43,18 @@ async def start_show(request: Request):
     except:
         return {
             "fulfillmentText": "Something went wrong. Please try with a valid year"
+        }
+
+
+def stop_show():
+    try:
+        kill_ifview_process()
+        return {
+            "fulfillmentText": "Slideshow stopped"
+        }
+    except:
+        return {
+            "fulfillmentText": "Something went wrong. Try again"
         }
 
 
