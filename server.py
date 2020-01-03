@@ -58,16 +58,15 @@ def generate_file_list(year: str):
     media_path = "D:\\pcloud_sync"
     print(f"re-generating file list for {year}")
     if year == '2009':
+        # combine all 2002 to 2009
         years = range(2002, 2010)
     else:
         years = [year]
-    # combine all 2002 to 2009
     file_list_all = []
     for a_year in years:
         file_list_all += list(Path(f"{media_path}\\{a_year}").glob('**/*.*'))
     file_list = sorted([str(f) for f in file_list_all if not 'txt' in str(f)])
-    print(len(file_list))
-    if not file_list:
+    if not file_list or len(file_list) == 0:
         raise ValueError(f"no file found for year {year}")
     with open(f"filelist/{year}.txt", "w") as f:
         for file in file_list:
