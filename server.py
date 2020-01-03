@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import psutil
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from starlette.requests import Request
 from pathlib import Path
 
@@ -17,24 +17,29 @@ def read_root():
 
 @app.post("/start_show")
 async def start_show(request: Request):
-    request_body = await request.json()
-    print(request_body)
-    year = request_body['queryResult']['parameters']['year']
-    print(f"parameter year from request: {year}")
-    validate_param(year)
+    try:
+        request_body = await request.json()
+        print(request_body)
+        year = request_body['queryResult']['parameters']['year']
+        print(f"parameter year from request: {year}")
+        validate_param(year)
 
-    kill_ifview_process()
-    generate_file_list(year)
-    generate_bat_file(year)
-    run_ifview(year)
-    return {
-        "result": "started"
-    }
+        kill_ifview_process()
+        generate_file_list(year)
+        generate_bat_file(year)
+        run_ifview(year)
+        return {
+            "fulfillmentText": "Slideshow started"
+        }
+    except:
+        return {
+            "fulfillmentText": "Something went wrong. Please try with a valid year"
+        }
 
 
 def validate_param(year: str):
     if not 2009 <= int(year) <= 2030:
-        raise ValueError("invalid year received: {year}. expected 2009 to 2030")
+        raise ValueError(f"invalid year received: {year}. expected 2009 to 2030")
 
 
 def kill_ifview_process():
@@ -53,13 +58,17 @@ def generate_file_list(year: str):
     media_path = "D:\\pcloud_sync"
     print(f"re-generating file list for {year}")
     if year == '2009':
-        # combine all 2002 to 2009
-        file_list_all = []
-        for a_year in range(2002, 2010):
-            file_list_all += list(Path(f"{media_path}\\{a_year}").glob('**/*.*'))
+        years = range(2002, 2010)
     else:
-        file_list_all = list(Path(f"{media_path}\\{year}").glob('**/*.*'))
-    file_list = [str(f) for f in file_list_all if not 'txt' in str(f)]
+        years = [year]
+    # combine all 2002 to 2009
+    file_list_all = []
+    for a_year in years:
+        file_list_all += list(Path(f"{media_path}\\{a_year}").glob('**/*.*'))
+    file_list = sorted([str(f) for f in file_list_all if not 'txt' in str(f)])
+    print(len(file_list))
+    if not file_list:
+        raise ValueError(f"no file found for year {year}")
     with open(f"filelist/{year}.txt", "w") as f:
         for file in file_list:
             f.write(f"{file}\n")
