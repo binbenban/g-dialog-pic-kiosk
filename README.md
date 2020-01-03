@@ -36,8 +36,8 @@ It will end any existing show, by killilng irfanview process
 on the NUC
 - `uvicorn server:app --reload`
 - `Downloads\ngrok.exe http 8000`
-
+- use the ngrok URL generated in previous step in the Dialog flow fulfillment
 
 ### notes
-Use https endpoint as webhook URL
+Make sure to use https endpoint as webhook URL
 `https://xxxx.ngrok.io/start_show`
