@@ -33,6 +33,10 @@ Use voice command to start kiosk for a given year
 It will end any existing show, by killilng irfanview process
 
 ### steps
+authorise ngrok so the service does not expire
+- get the auth token from ngrok dashboard
+- on NUC, `ngrok authtoken [token]`
+
 on the NUC
 - `uvicorn server:app --reload`
 - `Downloads\ngrok.exe http 8000`
